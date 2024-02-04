@@ -1,4 +1,5 @@
 import * as borsh from '@coral-xyz/borsh'
+import { ST } from 'next/dist/shared/lib/utils';
 export class StudentIntro {
     name: string;
     message: string;
@@ -13,6 +14,24 @@ export class StudentIntro {
         borsh.str('name'),
         borsh.str('message'),
     ])
+
+    static borschAccountSchema = borsh.struct([
+        borsh.bool('initialized'),
+        borsh.str('name'),
+        borsh.str('message'),
+    ])
+
+    static deserialize(buffer?: Buffer): StudentIntro|null {
+        if(!buffer) { return null }
+
+        try {
+            const { name, message } = this.borschAccountSchema.decode(buffer)
+            return new StudentIntro(name, message)
+        } catch (error) {
+            console.log('Deserialize error:', error)
+            return null
+        }
+    }
 
     serialize(): Buffer {
         const buffer = Buffer.alloc(1000)
